@@ -40,11 +40,11 @@ PEXELS_API_KEY = os.environ.get("PEXELS_API_KEY")
 PIXABAY_API_KEY = os.environ.get("PIXABAY_API_KEY")
 GOOGLE_CREDENTIALS_JSON = os.environ.get("GOOGLE_CREDENTIALS_JSON", "")
 
-# ✅ ID FISSO SIGNIFICATO DEI SOGNI (SOSTITUISCI CON TUO SPREADSHEET_ID!)
-SPREADSHEET_ID = "1okc3JU-dhnmHHFwuW39NClBNbvEeADOE4pzw1SE3HA4"
+# ✅ ID FISSO MERAVIGLIE D'ITALIA
+SPREADSHEET_ID = "1qU0i6fJuBsDghKaVIBuitfMJES93CUSyB5LKzCJcR0c"
 
-# 🔔 Webhook flusso 2 (Significato dei Sogni)
-N8N_WEBHOOK_URL_FLUSSO2 = os.environ.get("N8N_WEBHOOK_URL_SIGNIFICATO_DEI_SOGNI_FLUSSO2", "https://andreas84.app.n8n.cloud/webhook/Significato-dei-sogni-flusso-2-workflow-b")
+# 🔔 Webhook flusso 2 (Meraviglie d'Italia)
+N8N_WEBHOOK_URL_FLUSSO2 = os.environ.get("N8N_WEBHOOK_URL_MERAVIGLIE_ITALIA_FLUSSO2", "https://andreas84.app.n8n.cloud/webhook/meraviglie-d-italia-flusso-2-workflow-b")
 
 jobs = {}
 MAX_JOBS = 50
@@ -107,7 +107,7 @@ def cleanup_old_videos(s3_client, current_key):
 def notify_n8n_flusso2(job):
     """Invia webhook a n8n quando il job è completato."""
     if not N8N_WEBHOOK_URL_FLUSSO2:
-        print("⚠️ N8N_WEBHOOK_URL_SIGNIFICATO_DEI_SOGNI_FLUSSO2 non configurata, skip webhook", flush=True)
+        print("⚠️ N8N_WEBHOOK_URL_MERAVIGLIE_ITALIA_FLUSSO2 non configurata, skip webhook", flush=True)
         return
 
     try:
@@ -121,85 +121,73 @@ def notify_n8n_flusso2(job):
             "row_id": job.get("row_number") or job.get("data", {}).get("row_id"),
             "keywords": job.get("data", {}).get("keywords"),
             "playlist": job.get("data", {}).get("playlist"),
-            "channel": "significato_sogni",
+            "channel": "meraviglie_italia",
         }
         resp = requests.post(N8N_WEBHOOK_URL_FLUSSO2, json=payload, timeout=15)
         print(f"🔔 Webhook n8n flusso2 status={resp.status_code}", flush=True)
     except Exception as e:
         print(f"⚠️ Errore invio webhook n8n flusso2: {e}", flush=True)
 # -------------------------------------------------
-# Mapping SCENA → QUERY visiva (canale SIGNIFICATO DEI SOGNI)
+# Mapping SCENA → QUERY visiva (canale MERAVIGLIE D'ITALIA)
 # -------------------------------------------------
 def pick_visual_query(context: str, keywords_text: str = "") -> str:
-    """Query ottimizzate per B-roll SOGNI: atmosfera onirica, simboli, introspezione psicologica."""
+    """Query ottimizzate per B-roll ITALIA: landscape, villages, coast, mountains, architecture, culture."""
     ctx = (context or "").lower()
     kw = (keywords_text or "").lower()
     
-    base = "dreamlike night sky surreal clouds moonlight abstract shapes introspective person thinking"
+    base = "Italy Italian landscape beautiful scenic village architecture coastline mountains nature"
     
-    if any(w in ctx for w in ["ricorrent", "sempre lo stesso", "ripet", "loop"]):
-        return "repeating corridor endless hallway looping doors abstract repetition surreal pattern"
-    if any(w in ctx for w in ["ansia", "paura", "terror", "incubo", "angoscia", "panico"]):
-        return "dark corridor shadowy figure dramatic lighting person stressed surreal nightmare atmosphere"
-    if any(w in ctx for w in ["ex", "relazione", "amore", "partner", "fidanzat"]):
-        return "couple silhouette at night distant people city lights person looking old photos emotional"
-    if any(w in ctx for w in ["famiglia", "genitori", "madre", "padre", "figli", "bambin"]):
-        return "family silhouettes warm home interior parents with child soft light nostalgic atmosphere"
-    if any(w in ctx for w in ["morte", "lutto", "perdita", "funerale", "addio"]):
-        return "lonely person cemetery sunset field person sitting alone bench reflective grief mood"
-    if any(w in ctx for w in ["volare", "volo", "libertà", "libero"]):
-        return "person on mountain top arms open birds in sky clouds airplane window wide open sky"
-    if any(w in ctx for w in ["cadere", "vuoto", "precipitar", "crollo"]):
-        return "view from high building down abstract falling shapes person looking down height dramatic"
-    if any(w in ctx for w in ["inseguit", "scappare", "fuga", "scappando"]):
-        return "person running at night dark alley light at end blurred motion tense chase atmosphere"
-    if any(w in ctx for w in ["nudo", "nuda", "vergogna", "imbarazz", "esposto"]):
-        return "person covering with blanket spotlight on stage crowd blurred shame concept"
-    if any(w in ctx for w in ["mare", "acqua", "oceano", "onda", "tsunami", "pioggia"]):
-        return "ocean waves slow motion underwater light rays rain on window calm stormy sea"
-    if any(w in ctx for w in ["casa", "stanza", "porta", "corridoio", "scalinata"]):
-        return "mysterious door light behind long corridor house interior shadows stairs low light"
-    if any(w in ctx for w in ["cane", "gatto", "serpente", "animale", "leone", "ragno"]):
-        return "animal silhouette fog close up eye animal surreal environment symbolic wildlife"
-    if any(w in ctx for w in ["esame", "scuola", "università", "lavoro", "colloquio", "licenziato"]):
-        return "student classroom stressed person office desk night alarm clock papers books"
-    if any(w in ctx for w in ["sogno lucido", "lucidi", "controllo sogno", "consapevole"]):
-        return "person floating space surreal landscape glowing moon mountains abstract geometric dream world"
-    if any(w in ctx for w in ["trauma", "incident", "shock", "attacco"]):
-        return "broken glass slow motion person sitting floor dark room dramatic shadow lighting"
-    if any(w in ctx for w in ["archetipo", "jung", "ombra", "inconscio", "psiche"]):
-        return "surreal human silhouette galaxy inside split face light shadow abstract psychological art"
-    if any(w in ctx for w in ["premonit", "spiritual", "segnale", "universo", "destino"]):
-        return "starry night sky person looking stars galaxy timelapse light beams from sky"
+    if any(w in ctx for w in ["borgo", "medieval", "village", "centro storico", "paese"]):
+        return "Italian medieval village hilltop, stone architecture terracotta roofs, historic center narrow streets, Tuscan village charm"
+    if any(w in ctx for w in ["mare", "costa", "spiaggia", "amalfi", "cinque terre"]):
+        return "Italian coastline dramatic cliffs, Mediterranean sea turquoise, coastal village colorful houses, Amalfi coast beauty"
+    if any(w in ctx for w in ["dolomiti", "alpi", "montagna", "vette", "rifugi"]):
+        return "Dolomites mountains majestic peaks, alpine landscape hiking, mountain vista dramatic, Italian Alps stunning"
+    if any(w in ctx for w in ["lago", "como", "garda", "maggiore"]):
+        return "Italian lake pristine water, alpine lake mountain reflection, Lake Como Garda beauty, serene water landscape"
+    if any(w in ctx for w in ["unesco", "patrimonio", "colosseo", "monumenti"]):
+        return "UNESCO heritage site Italy, ancient Roman architecture, historical monument iconic, cultural treasure landmark"
+    if any(w in ctx for w in ["firenze", "roma", "venezia", "arte", "rinascimento"]):
+        return "Florence Renaissance architecture, Italian art city cathedral, Venice Rome landmarks, cultural heritage artistic"
+    if any(w in ctx for w in ["trekking", "sentier", "natura", "parco", "escursion"]):
+        return "hiking trail Italian countryside, nature path green landscape, national park Italy, outdoor trekking scenic"
+    if any(w in ctx for w in ["cascata", "gole", "marmore", "fiume"]):
+        return "waterfall Italy spectacular, gorge canyon natural, river flowing Italy, dramatic water nature"
+    if any(w in ctx for w in ["vino", "cibo", "enogastronom", "cucina", "tradizion"]):
+        return "Italian wine food table, regional specialties authentic, vineyard countryside, culinary tradition Italy"
+    if any(w in ctx for w in ["treno", "slow", "cammino", "francigena"]):
+        return "Italian train scenic railway, slow travel countryside, walking path pilgrimage, journey through Italy"
+    if any(w in ctx for w in ["toscana", "val d'orcia", "colline", "cipressi"]):
+        return "Tuscany rolling hills landscape, Val d'Orcia cypress trees, golden countryside iconic, Italian rural beauty"
     
     if kw and kw != "none":
-        return f"{kw}, dreamy night sky, surreal atmosphere, symbolic visuals, introspective person"
+        return f"{kw}, Italy Italian landscape, scenic village nature, beautiful coastline mountains, cultural heritage"
     
     return base
 
-def is_sogni_video_metadata(video_data, source):
-    """🔧 Filtro SOGNI - NO banned (sport/cucina/gaming/business) + atmosfera onirica"""
-    dream_keywords = ["dream", "night", "sky", "clouds", "moon", "stars", "surreal", "abstract", 
-                      "person", "thinking", "silhouette", "shadow", "light", "emotional", "reflective",
-                      "water", "ocean", "corridor", "dark", "mysterious", "spiritual", "cosmic"]
-    banned = ["football", "soccer", "basketball", "tennis", "sport", "workout", "gym", "fitness",
-              "kitchen", "cooking", "recipe", "food", "restaurant", "party", "festival", "concert",
-              "videogame", "gaming", "esports", "business", "stock market", "money", "dollar", "finance"]
+def is_italia_video_metadata(video_data, source):
+    """🔧 Filtro ITALIA/TRAVEL - NO banned (animals/unrelated) + keywords landscape/travel"""
+    italy_keywords = ["italy", "italian", "landscape", "village", "coast", "mountain", "lake", "architecture",
+                      "travel", "scenic", "nature", "historic", "medieval", "countryside", "sea", "beach",
+                      "monument", "church", "cathedral", "castle", "vineyard", "hiking", "waterfall",
+                      "unesco", "heritage", "cultural", "tourism", "panorama", "vista", "sunset"]
+    banned = ["dog", "cat", "animal", "pet", "cooking show", "gym", "fitness workout", "sports game",
+              "party", "festival concert", "gaming", "videogame", "cartoon", "animation"]
     
     if source == "pexels":
         text = (video_data.get("description", "") + " " + " ".join(video_data.get("tags", []))).lower()
     else:
         text = " ".join(video_data.get("tags", [])).lower()
     
-    dream_count = sum(1 for kw in dream_keywords if kw in text)
+    italy_count = sum(1 for kw in italy_keywords if kw in text)
     has_banned = any(kw in text for kw in banned)
     
     if has_banned:
         status = "❌ BANNED"
-    elif dream_count >= 1:
-        status = f"✅ DREAM({dream_count})"
+    elif italy_count >= 1:
+        status = f"✅ ITALIA({italy_count})"
     else:
-        status = f"⚠️ NEUTRAL(dream:{dream_count})"
+        status = f"⚠️ NEUTRAL(italy:{italy_count})"
     
     print(f"🔍 [{source}] '{text[:60]}...' → {status}", flush=True)
     return not has_banned
@@ -215,7 +203,7 @@ def download_file(url: str) -> str:
     return tmp_clip.name
 
 def fetch_clip_for_scene(scene_number: int, query: str, avg_scene_duration: float):
-    """🎯 Canale SOGNI: B-roll onirico. Fallback Pixabay se Pexels 0."""
+    """🎯 Canale MERAVIGLIE ITALIA: B-roll landscape/travel. Fallback Pixabay se Pexels 0."""
     target_duration = min(4.0, avg_scene_duration)
     
     def try_pexels():
@@ -223,7 +211,7 @@ def fetch_clip_for_scene(scene_number: int, query: str, avg_scene_duration: floa
             return None
         headers = {"Authorization": PEXELS_API_KEY}
         params = {
-            "query": f"{query} dreamy night surreal abstract psychology",
+            "query": f"{query} Italy Italian travel scenic landscape",
             "orientation": "landscape",
             "per_page": 25,
             "page": random.randint(1, 3),
@@ -232,10 +220,10 @@ def fetch_clip_for_scene(scene_number: int, query: str, avg_scene_duration: floa
         if resp.status_code != 200:
             return None
         videos = resp.json().get("videos", [])
-        dream_videos = [v for v in videos if is_sogni_video_metadata(v, "pexels")]
-        print(f"🎯 Pexels: {len(videos)} totali → {len(dream_videos)} OK (no banned)", flush=True)
-        if dream_videos:
-            video = random.choice(dream_videos)
+        italia_videos = [v for v in videos if is_italia_video_metadata(v, "pexels")]
+        print(f"🎯 Pexels: {len(videos)} totali → {len(italia_videos)} OK (no banned)", flush=True)
+        if italia_videos:
+            video = random.choice(italia_videos)
             for vf in video.get("video_files", []):
                 if vf.get("width", 0) >= 1280:
                     return download_file(vf["link"])
@@ -246,7 +234,7 @@ def fetch_clip_for_scene(scene_number: int, query: str, avg_scene_duration: floa
             return None
         params = {
             "key": PIXABAY_API_KEY,
-            "q": f"{query} dreamy night surreal abstract psychology",
+            "q": f"{query} Italy Italian travel scenic landscape",
             "per_page": 25,
             "safesearch": "true",
             "min_width": 1280,
@@ -256,7 +244,7 @@ def fetch_clip_for_scene(scene_number: int, query: str, avg_scene_duration: floa
             return None
         hits = resp.json().get("hits", [])
         for hit in hits:
-            if is_sogni_video_metadata(hit, "pixabay"):
+            if is_italia_video_metadata(hit, "pixabay"):
                 videos = hit.get("videos", {})
                 for quality in ["large", "medium", "small"]:
                     if quality in videos and "url" in videos[quality]:
@@ -338,7 +326,7 @@ def process_video_async(job_id, data):
             row_number = 1
 
         print("=" * 80, flush=True)
-        print(f"✨ START SIGNIFICATO DEI SOGNI: {len(script)} char script, keywords: '{sheet_keywords}', row: {row_number}", flush=True)
+        print(f"🇮🇹 START MERAVIGLIE D'ITALIA: {len(script)} char script, keywords: '{sheet_keywords}', row: {row_number}", flush=True)
         print(f"🔍 DEBUG row_number RAW: '{row_number_raw}' → PARSED: '{row_number}'", flush=True)
         
         if not audiobase64:
@@ -378,7 +366,7 @@ def process_video_async(job_id, data):
                 print(f"🔧 Clip {i}/{num_scenes}", flush=True)
             timestamp = i * avg_scene_duration
             word_index = int(timestamp * words_per_second)
-            scene_context = " ".join(script_words[word_index: word_index + 7]) if word_index < len(script_words) else "dreamlike night sky surreal clouds moonlight"
+            scene_context = " ".join(script_words[word_index: word_index + 7]) if word_index < len(script_words) else "Italy Italian landscape beautiful scenic village"
             scene_query = pick_visual_query(scene_context, sheet_keywords)
             scene_assignments.append({
                 "scene": i + 1, "timestamp": round(timestamp, 1),
@@ -498,7 +486,7 @@ def process_video_async(job_id, data):
             except Exception:
                 pass
         
-        print(f"✅ ✨ VIDEO SIGNIFICATO DEI SOGNI COMPLETO: {real_duration/60:.1f}min → {public_url}", flush=True)
+        print(f"✅ 🇮🇹 VIDEO MERAVIGLIE D'ITALIA COMPLETO: {real_duration/60:.1f}min → {public_url}", flush=True)
         
         job.update({
             "status": "completed",
